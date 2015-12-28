@@ -118,17 +118,21 @@ a:hover {
     color: black;
 }
 
-#airbnbLink {
-    float: right;
-}
-
 #infoBox img {
-    height: 100%;
+    /*height: 100%;*/
     width: 100%;
     margin-top: 5px;
     padding: 0;
 }
 
+#airbnbLink {
+    float: right;
+    vertical-align: middle;
+}
+
+#airbnbLink img {
+    width: 75px;
+}
 @media (max-device-width: 768px)  {
 
 /* Mobile  Styles */
@@ -184,11 +188,14 @@ a:hover {
     /*width: 25%;*/
     color: #999999;
     float: none;
+    margin: 0 10px 0 0;
 }
 
 #infoBox a {
     margin: 10px 5px 0 0;
 }
+
+
 
 #infoBox img {
     display: none;
