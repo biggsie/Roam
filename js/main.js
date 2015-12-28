@@ -75,6 +75,12 @@ $(window).load(function(){
   }
 });
 
+$('#logo').click(function() {
+  // reset to default setup
+  var resetUrl = location.pathname;
+  location.href = resetUrl;
+});
+
 $('#backToPopular').click( function() {
   console.log('back clicked');
   $('#nowShowing').html(" Showing: Popular");
