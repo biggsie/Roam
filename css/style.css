@@ -27,6 +27,7 @@ a:hover {
 #logo {
     float: left;   
     font-size: 24px;
+    cursor: pointer;
 }
 
 #nav-controls {
