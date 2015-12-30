@@ -27,6 +27,7 @@ a:hover {
 #logo {
     float: left;   
     font-size: 24px;
+    cursor: pointer;
 }
 
 #nav-controls {
@@ -127,7 +128,7 @@ a:hover {
 
 #airbnbLink {
     float: right;
-    vertical-align: middle;
+    vertical-align: top;
 }
 
 #airbnbLink img {

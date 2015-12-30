@@ -21,7 +21,7 @@ $(document).ready(function() {
   lat = $.urlParam('lat')
   lon = $.urlParam('lon')
   photoId = $.urlParam('id')
-  photoPageIndex = $.urlParam('page')
+  // photoPageIndex = $.urlParam('page')
   console.log('dom ready. lat:' + lat + ' lon:' + lon);
   
   if (lat !== null) {
@@ -37,13 +37,13 @@ $(document).ready(function() {
       mapClicked(lat,lon);
       }
   } else {
-    lat = 37.78000699;
-    lon = -122.394711971282;
-    map = initializeMap(lat,lon);
+    console.log('no params found. starting in default state.')
+    map = initializeMap();
     console.log(map + 'has been created');
     // getPanaramioImages(photoData);
-    photoPageIndex = 1;
-    getPopularPhotos(photoPageIndex);
+    // photoPageIndex = 1;
+    // getPopularPhotos();
+    get500pxImages();
     if (photoId !== null) {
       var photoDetails = getSingle500pxImage(photoId);
     }
@@ -75,47 +75,68 @@ $(window).load(function(){
   }
 });
 
+$('#logo').click( function() {
+    removeHash("id");
+    removeHash("lon");
+    removeHash("lat");
+    $('#nowShowing').html(" Showing: Popular");
+    $('#backToPopular').hide();
+    $( "#slidee" ).empty();
+    initializeMap();
+    photoPageIndex = 0;
+    get500pxImages();
+});
+
 $('#backToPopular').click( function() {
   console.log('back clicked');
+  $( "#slidee" ).empty();
   $('#nowShowing').html(" Showing: Popular");
   $('#backToPopular').hide();
-  var photoPageIndex = 0;
-  getPopularPhotos(photoPageIndex);
+  photoPageIndex = 0;
+  // remove lat lon url params;
+  get500pxImages();
   });
 
 $('#next').click( function() {
   ga('send', 'event', 'button', 'click', 'next');
+  $( "#slidee" ).empty();
   photoPageIndex++;
-  getPopularPhotos(photoPageIndex);
+  // getPopularPhotos(photoPageIndex);
+  get500pxImages();
   });
 
-function getPopularPhotos (index) {
-   // console.log(photoPageIndex);
-   var photoData = {
-    'set' : 'public',
-    'from' : index,
-    'to' : index + 40,
-    'minx' : '-180',
-    'miny' : '-90',
-    'maxx' : '180',
-    'maxy' : '90',
-    'size' : 'small',
-    'mapfilter' : 'true'
-  };
-  ga('send', 'event', 'button', 'click', 'next');
-  $( "#slidee" ).empty();
-  // getPanaramioImages(photoData); 
-  var lat = null;
-  get500pxImages(photoData,lat);
+// function getPopularPhotos (index) {
+//    // console.log(photoPageIndex);
+//    var photoData = {
+//     'set' : 'public',
+//     'from' : index,
+//     'to' : index + 40,
+//     'minx' : '-180',
+//     'miny' : '-90',
+//     'maxx' : '180',
+//     'maxy' : '90',
+//     'size' : 'small',
+//     'mapfilter' : 'true'
+//   };
+//   ga('send', 'event', 'button', 'click', 'next');
+//   $( "#slidee" ).empty();
+//   // getPanaramioImages(photoData); 
+//   var lat = null;
+//   get500pxImages(photoData,lat);
 
-}
+// }
 
 
 function initializeMap(lat,lon) {
-  console.log('maps initialize called: lat: ' + lat + ' lon:' + lon);
+  if (lat == null) {
+    // console.log('Use default location if lat not specified in url params');
+    var lat = 37.78000699;
+    var lon = -122.394711971282;
+  }
+  // console.log('maps initialize called: lat: ' + lat + ' lon:' + lon);
   var mapOptions = {
     center: new google.maps.LatLng(lat, lon),
-    zoom: 2,
+    zoom: 3,
     mapTypeId: google.maps.MapTypeId.ROADMAP,
     mapTypeControl: false,
     streetViewControl: false
@@ -161,54 +182,26 @@ function mapClicked(lat,lon) {
   // placeMarker(lat,lon);
   // infowindow.close();
   console.log('mapclicked called');
-  window.location.hash = '#lat=' + lat + '&lon=' + lon;
+  // window.location.hash = '#lat=' + lat + '&lon=' + lon;
+  updateHash("lat", lat);
+  updateHash("lon", lon);
+  removeHash("id");
   ga('send', 'event', 'map', 'click', encodeURI(window.location));
-  //getImagesWithLatLong(lat,Lng);
 
-  var photoData = {
-      'set' : 'public',
-      'from' : '0',
-      'to' : '40',
-      'minx' : Number(lon) - .25,
-      'miny' : Number(lat) - .25,
-      'maxx' : Number(lon) + .25,
-      'maxy' : Number(lat) + .25,
-      'size' : 'small',
-      'mapfilter' : 'true'
-  };
   // console.log(photoData);  
   $( "#slidee" ).empty();
   // getPanaramioImages(photoData);
-  get500pxImages(photoData,lat,lon);
+  get500pxImages();
   cityState = getLocation(lat,lon);
   
 }
 
-function getPanaramioImages(photoData) {
-  var url = 'http://www.panoramio.com/map/get_panoramas.php';
 
-  $.ajax({
-    "dataType" : "jsonp",
-    "url" : url,
-    "data" : photoData,
-    "success" : getImagesRequest
-  });
-}
-
-function getImagesRequest(photoFeed) {
-  console.log('getImages has been called!');
-
-  $.each(photoFeed.photos, function(index, photos) {
-      // console.log(photos.photo_file_url);
-
-    $( "#slidee" ).append("<li><img src='" + photos.photo_file_url + "' class='imageBox' data-lat=" + photos.latitude +" data-lon=" + photos.longitude +  " data-pageUrl=" + photos.photo_url +  " data-title='" + photos.photo_title +  "' data-url=" + photos.photo_file_url + " data-id=" + photos.photoId + "></li>");
-  });
-
-  }
-
-function get500pxImages(photoData,lat,lon) {
+function get500pxImages() {
+  lat = $.urlParam('lat');
+  lon = $.urlParam('lon');
   var url = 'https://api.500px.com/v1/photos/search';
-  // console.log("get500pxImages called");
+  console.log("get500pxImages called. photo index = " + photoPageIndex); 
 
   var the500pxData = {
     'sort' : 'highest_rating',
@@ -229,7 +222,8 @@ function get500pxImages(photoData,lat,lon) {
     "dataType" : "json",
     "url" : url,
     "data" : the500pxData,
-    "success" : get500pxImagesRequest
+    "success" : get500pxImagesRequest,
+    "fail" : ga('send', 'event', 'error', '500px api')
     });  
 
 }
@@ -312,7 +306,7 @@ $('#photos').on('click', '.imageBox', function() {
   // console.log($(this).data());
 
   launchInfoWindow($(this).data());
-  // updateHash("id",123);
+
 });
 
 function launchInfoWindow(photoDetails) {
@@ -324,11 +318,10 @@ function launchInfoWindow(photoDetails) {
     var ne_lat = lat + 1;
     var ne_lon = lon + 1;
     var zoom = map.getZoom();
-    var airbnbLink = "<div id=airbnbLink>Stay here:<a href=https://www.airbnb.com/s/?zoom=" + zoom + "&search_by_map=true&sw_lat=" + sw_lat + "&sw_lng=" + sw_lon + "&ne_lat=" + ne_lat + "&ne_lng=" + ne_lon + " target= 'blank'><img src=./img/airbnb_horizontal_lockup_web.png></a></div>";
+    var airbnbLink = "<div id=airbnbLink><a href=https://www.airbnb.com/s/?zoom=" + zoom + "&search_by_map=true&sw_lat=" + sw_lat + "&sw_lng=" + sw_lon + "&ne_lat=" + ne_lat + "&ne_lng=" + ne_lon + " target= 'blank'>Stay here:<img src=./img/airbnb_horizontal_lockup_web.png width=75px height=34px></a></div>";
 
     // var photoId = $(this).data("id");
     var photoId = photoDetails.id;
-    // window.location.hash = "#id=" + photoId;
     updateHash('id',photoId);
     // console.log('Image clicked! Lat=' + lat + ' Lon=' + lon);
     placeMarker(lat,lon);
@@ -441,33 +434,35 @@ function updateHash(key,value) {
 }
 
 function removeHash(key) {
-var currentHash = window.location.hash;
-if(currentHash.search(key) > 0) {
-    var keyLocation = currentHash.search(key);
-    console.log('key found at ' + keyLocation);
-    var part1 = currentHash.substr(0,keyLocation - 1);
-    console.log('part1 = ' + part1);
-    var part1Length = part1.length;
-    var part2 = currentHash.substr(part1Length);
-    console.log('part2 so far is ' + part2);
-    console.log('part2.search = ' + part2.search('&'));
-    
-    if(part2.search('&') >= 0 ) {
-      console.log('amp found');
-      var part2StartIndex = part2.search('&')
-      console.log('part2StartIndex = ' + part2StartIndex)
-      var part2 = part2.substr(part2StartIndex);
-      console.log('part2 = ' + part2);
-      var newHash = part1 + '&' + part2;
-      } else {
-        var newHash = part1;
-      }
-    console.log('newHash = ' + newHash);
+  var currentHash = window.location.hash.substr(1);
+  var currentHashArray = currentHash.split('&');
+  var removeIndex;
 
-  } else {
-    // otherwise add hash value
-    console.log('key not found')
-  }
+  $.each(currentHashArray, function( index, element ){
+    // console.log( "Index #" + index + ": " + element );
+    if(element.search(key) >= 0 ) {
+      // console.log("Key is found.")
+      removeIndex = index;
+    }
+  });
+
+  if(removeIndex !== undefined) {
+    // console.log('removing index: ' + removeIndex);
+    currentHashArray.splice(removeIndex,1);
+  };
+
+  // rebuild hash from array
+  var newHash = "";
+  $.each(currentHashArray, function( index, element) {
+    if(index > 0) {
+      newHash = newHash + '&';
+    }
+    // console.log("rebuilding hash. adding... " + element);
+    newHash = newHash + element;
+
+  });
+  // console.log('new hash = ' + newHash);
+  window.location.hash = "#" + newHash;
 }
 
 
