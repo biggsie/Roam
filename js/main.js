@@ -84,6 +84,7 @@ $('#backToPopular').click( function() {
   });
 
 $('#next').click( function() {
+  ga('send', 'event', 'button', 'click', 'next');
   photoPageIndex++;
   getPopularPhotos(photoPageIndex);
   });
@@ -311,7 +312,7 @@ $('#photos').on('click', '.imageBox', function() {
   // console.log($(this).data());
 
   launchInfoWindow($(this).data());
-  updateHash("id",123);
+  // updateHash("id",123);
 });
 
 function launchInfoWindow(photoDetails) {
@@ -327,7 +328,8 @@ function launchInfoWindow(photoDetails) {
 
     // var photoId = $(this).data("id");
     var photoId = photoDetails.id;
-    window.location.hash = "#id=" + photoId;
+    // window.location.hash = "#id=" + photoId;
+    updateHash('id',photoId);
     // console.log('Image clicked! Lat=' + lat + ' Lon=' + lon);
     placeMarker(lat,lon);
 
@@ -425,9 +427,46 @@ $.urlParam = function(name){
   };
 
 function updateHash(key,value) {
-  if(window.location.hash.split(key + '=')[1]) {
-    console.log("found " + key);
-    console.log(window.location.hash.split(key + '=')[1])
+  // update hash value if present
+
+  if($.urlParam(key)) {
+    currentValue = key + "=" + $.urlParam(key);
+    console.log(currentValue);
+    var newValue = key + '=' + value;
+    window.location.hash = window.location.hash.replace(currentValue, newValue);
+  } else {
+    // otherwise add hash value
+    window.location.hash = window.location.hash + "&" + key + "=" + value;
+  }
+}
+
+function removeHash(key) {
+var currentHash = window.location.hash;
+if(currentHash.search(key) > 0) {
+    var keyLocation = currentHash.search(key);
+    console.log('key found at ' + keyLocation);
+    var part1 = currentHash.substr(0,keyLocation - 1);
+    console.log('part1 = ' + part1);
+    var part1Length = part1.length;
+    var part2 = currentHash.substr(part1Length);
+    console.log('part2 so far is ' + part2);
+    console.log('part2.search = ' + part2.search('&'));
+    
+    if(part2.search('&') >= 0 ) {
+      console.log('amp found');
+      var part2StartIndex = part2.search('&')
+      console.log('part2StartIndex = ' + part2StartIndex)
+      var part2 = part2.substr(part2StartIndex);
+      console.log('part2 = ' + part2);
+      var newHash = part1 + '&' + part2;
+      } else {
+        var newHash = part1;
+      }
+    console.log('newHash = ' + newHash);
+
+  } else {
+    // otherwise add hash value
+    console.log('key not found')
   }
 }
 
