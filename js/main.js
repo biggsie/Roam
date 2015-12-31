@@ -3,19 +3,6 @@ var marker;
 var photoPageIndex = 1
 var cityState;
 var infowindow;
-var mode = 'popular';
-
-// var photoData = {
-//     'set' : 'public',
-//     'from' : photoPageIndex,
-//     'to' : photoPageIndex + 40,
-//     'minx' : '-180',
-//     'miny' : '-90',
-//     'maxx' : '180',
-//     'maxy' : '90',
-//     'size' : 'medium',
-//     'mapfilter' : 'true'
-//   };
 
 $(document).ready(function() {
   lat = $.urlParam('lat')
@@ -39,7 +26,7 @@ $(document).ready(function() {
   } else {
     console.log('no params found. starting in default state.')
     map = initializeMap();
-    console.log(map + 'has been created');
+    // console.log(map + 'has been created');
     // getPanaramioImages(photoData);
     // photoPageIndex = 1;
     // getPopularPhotos();
@@ -101,30 +88,8 @@ $('#next').click( function() {
   ga('send', 'event', 'button', 'click', 'next');
   $( "#slidee" ).empty();
   photoPageIndex++;
-  // getPopularPhotos(photoPageIndex);
   get500pxImages();
   });
-
-// function getPopularPhotos (index) {
-//    // console.log(photoPageIndex);
-//    var photoData = {
-//     'set' : 'public',
-//     'from' : index,
-//     'to' : index + 40,
-//     'minx' : '-180',
-//     'miny' : '-90',
-//     'maxx' : '180',
-//     'maxy' : '90',
-//     'size' : 'small',
-//     'mapfilter' : 'true'
-//   };
-//   ga('send', 'event', 'button', 'click', 'next');
-//   $( "#slidee" ).empty();
-//   // getPanaramioImages(photoData); 
-//   var lat = null;
-//   get500pxImages(photoData,lat);
-
-// }
 
 
 function initializeMap(lat,lon) {
@@ -179,10 +144,9 @@ function initializeMap(lat,lon) {
 
 function mapClicked(lat,lon) {
   // TODO fix placemarker by adding loaded callback to google map load.
-  // placeMarker(lat,lon);
+  placeMarker(lat,lon);
   // infowindow.close();
   console.log('mapclicked called');
-  // window.location.hash = '#lat=' + lat + '&lon=' + lon;
   updateHash("lat", lat);
   updateHash("lon", lon);
   removeHash("id");
@@ -201,7 +165,7 @@ function get500pxImages() {
   lat = $.urlParam('lat');
   lon = $.urlParam('lon');
   var url = 'https://api.500px.com/v1/photos/search';
-  console.log("get500pxImages called. photo index = " + photoPageIndex); 
+  // console.log("get500pxImages called. photo index = " + photoPageIndex); 
 
   var the500pxData = {
     'sort' : 'highest_rating',
@@ -214,6 +178,7 @@ function get500pxImages() {
     }   
 
   if (lat !== null) {
+    // if lat lon is provided, update geo with specifics
     the500pxData.geo = lat + ',' + lon + ',100mi';
     console.log(the500pxData.geo);
     }
@@ -421,10 +386,10 @@ $.urlParam = function(name){
 
 function updateHash(key,value) {
   // update hash value if present
-
+  console.log('updatehash called')
   if($.urlParam(key)) {
     currentValue = key + "=" + $.urlParam(key);
-    console.log(currentValue);
+    // console.log(currentValue);
     var newValue = key + '=' + value;
     window.location.hash = window.location.hash.replace(currentValue, newValue);
   } else {
@@ -434,6 +399,7 @@ function updateHash(key,value) {
 }
 
 function removeHash(key) {
+  // console.log('remove hash called')
   var currentHash = window.location.hash.substr(1);
   var currentHashArray = currentHash.split('&');
   var removeIndex;
